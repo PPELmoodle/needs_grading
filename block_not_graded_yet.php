@@ -1,62 +1,90 @@
 <?php
+
+defined('MOODLE_INTERNAL') || die();
+//require_once($CFG->dirroot.'/course/lib.php');
+
 class block_not_graded_yet extends block_list {
   function init(){
     $this->title = get_string('pluginname', 'block_not_graded_yet');
   }
 
+  /**
+   *  Allow parameters in admin settings
+   */
+  function has_config() {
+        return true;
+  }
+
+  /**
+   * Which page types this block may appear on.
+   * To show only in a course not on dashboard (from course moodlenavigation block)
+   * @return array
+   */
+  function applicable_formats() {
+      return [
+              'site-index' => true,
+              'course-view-*' => true
+      ];
+  }
+
+  /**
+     * Helper function to retrieve the assignment submission records for a given course.
+     *
+     * @param int $courseid     The course ID to get assignment submissions by.
+     * @return array            Array of assignment submission details.
+     * @throws dml_exception
+     */
+    protected function get_course_assignment_submissions($courseid) {
+      global $DB;
+
+      $sql = "SELECT s.id,
+                     s.assignment,
+                     s.userid,
+                     s.timecreated,
+                     s.timemodified,
+                     s.numfiles,
+                     s.data1,
+                     s.data2,
+                     s.grade,
+                     s.submissioncomment,
+                     s.format,
+                     s.teacher,
+                     s.timemarked,
+                     s.mailed
+                FROM {assignment} a
+                JOIN {assignment_submissions} s ON s.assignment = a.id
+               WHERE a.course = :courseid";
+      $params = [
+          'courseid' => $courseid
+      ];
+
+      return $DB->get_records_sql($sql, $params);
+    }
+
   function get_content(){
-    global $CFG, $DB, $OUTPUT;
+    global $CFG, $DB, $PAGE;
+
+    $course = $this->page->course;
 
     if($this->content !== NULL) {
       return $this->content;
     }
 
     $this->content = new stdClass;
-    $this->content->items = array();
-    $this->content->icons = array();
-    $this->content->footer = 'Footer here...';
+    $this->content->text = '';
+    $this->content->footer = '';
 
-    $course = $this->page->course;
-
-    require_once($CFG->dirroot.'/course/lib.php');
-
-    $modinfo = get_fast_modinfo($course);
-    $modfullnames = array();
-
-    $archetypes = array();
-
-    foreach($modinfo->cms as $cm) {
-      // Exclude activities that aren't visible or have no view link (e.g. label). Account for folder being displayed inline.
-      if (!$cm->uservisible || (!$cm->has_view() && strcmp($cm->modname, 'folder') !== 0)) {
-          continue;
-      }
-      if (array_key_exists($cm->modname, $modfullnames)) {
-          continue;
-      }
-      if (!array_key_exists($cm->modname, $archetypes)) {
-          $archetypes[$cm->modname] = plugin_supports('mod', $cm->modname, FEATURE_MOD_ARCHETYPE, MOD_ARCHETYPE_OTHER);
-      }
-      if ($archetypes[$cm->modname] == MOD_ARCHETYPE_RESOURCE) {
-        if (!array_key_exists('resources', $modfullnames)) {
-            $modfullnames['resources'] = get_string('resources');
-        }
-      } else {
-          $modfullnames[$cm->modname] = $cm->modplural;
-      }
+    if (empty($this->instance)) {
+        return $this->content;
     }
 
-    core_collator::asort($modfullnames);
+    // retrive the assignment records for a given course.
+    $assignments = $this->get_course_assignment_submissions($course->id);
 
-    foreach ($modfullnames as $modname => $modfullname) {
-        if ($modname === 'resources') {
-            $icon = $OUTPUT->pix_icon('icon', '', 'mod_page', array('class' => 'icon'));
-            $this->content->items[] = '<a href="'.$CFG->wwwroot.'/course/resources.php?id='.$course->id.'">'.$icon.$modfullname.'</a>';
-        } else {
-            $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
-            $this->content->items[] = '<a href="'.$CFG->wwwroot.'/mod/'.$modname.'/index.php?id='.$course->id.'">'.$icon.$modfullname.'</a>';
-        }
+    foreach ($assignments as $assignment) {
+      $this->content->items[] = 'Assignment'.$assignment;
     }
-
+    $this->content->items[] = 'Course ID is '.$course->id;
 
 
     return $this->content;
