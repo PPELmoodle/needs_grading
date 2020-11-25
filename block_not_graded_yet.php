@@ -59,7 +59,7 @@ class block_not_graded_yet extends block_list {
     global $DB;
 
     $sql = "SELECT name, cmid, COUNT(*)
-              FROM (SELECT DISTINCT a.name AS name, cm.id AS cmid, grm.groupid
+              FROM (SELECT DISTINCT a.name AS name, cm.id AS cmid, u.id
                       FROM {assign_submission} asb
                       JOIN {assign} a      ON a.id = asb.assignment
                       JOIN {course_modules} cm ON cm.instance = a.id
@@ -68,15 +68,17 @@ class block_not_graded_yet extends block_list {
                       JOIN {groups_members} grm                        ON grm.userid = u.id
                       JOIN {groups} gr                                        ON gr.id = grm.groupid
                       LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
+                      LEFT JOIN {assign_grades} asg ON asg.userid = asb.userid AND asg.assignment = asb.assignment
                       WHERE
                       asb.latest = 1 AND
-                      a.course = 2 AND
+                      a.course = :courseid1 AND
                       md.name = 'assign' AND
                       asb.status = 'submitted' AND
                       cm.deletioninprogress = 0 AND
-                      a.teamsubmission = 1
+                      a.teamsubmission = 1 AND
+                      (asg.userid is NULL OR asg.assignment is NULL OR asg.grade is NULL)
                       UNION
-                      SELECT a.name AS name, cm.id AS cmid, grm.groupid
+                      SELECT a.name AS name, cm.id AS cmid, u.id
                       FROM {assign_submission} asb
                       JOIN {assign} a      ON a.id = asb.assignment
                       JOIN {course_modules} cm ON cm.instance = a.id
@@ -85,16 +87,19 @@ class block_not_graded_yet extends block_list {
                       JOIN {groups_members} grm  ON grm.userid = u.id
                       JOIN {groups} gr        ON gr.id = grm.groupid
                       LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
+                      LEFT JOIN {assign_grades} asg ON asg.userid = asb.userid AND asg.assignment = asb.assignment
                       WHERE
                       asb.latest = 1 AND
-                      a.course = 2 AND
+                      a.course = :courseid2 AND
                       md.name = 'assign' AND
                       asb.status = 'submitted' AND
                       cm.deletioninprogress = 0 AND
-                      a.teamsubmission = 0) AS dist
-              GROUP BY name, cmid";
+                      a.teamsubmission = 0 AND
+                      (asg.userid is NULL OR asg.assignment is NULL OR asg.grade is NULL)) AS dist
+                      GROUP BY name, cmid";
     $params = [
-        'courseid' => $courseid
+        'courseid1' => $courseid,
+        'courseid2' => $courseid
     ];
 
     return $DB->get_recordset_sql($sql, $params);
@@ -119,6 +124,7 @@ class block_not_graded_yet extends block_list {
 
     // retrive the assignment records for a given course.
     $assignments = $this->get_number_submitted_assignments($course->id);
+
 
     $modname = 'assign';
     foreach ($assignments as $assignment) {
