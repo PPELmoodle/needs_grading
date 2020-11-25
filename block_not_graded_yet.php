@@ -1,7 +1,9 @@
 <?php
 
 defined('MOODLE_INTERNAL') || die();
-//require_once($CFG->dirroot.'/course/lib.php');
+require_once($CFG->dirroot.'/course/lib.php');
+require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot.'/mod/assign/lib.php');
 
 class block_not_graded_yet extends block_list {
   function init(){
@@ -27,42 +29,32 @@ class block_not_graded_yet extends block_list {
       ];
   }
 
-  /**
-     * Helper function to retrieve the assignment submission records for a given course.
-     *
-     * @param int $courseid     The course ID to get assignment submissions by.
-     * @return array            Array of assignment submission details.
-     * @throws dml_exception
-     */
-    protected function get_course_assignment_submissions($courseid) {
-      global $DB;
+  function get_number_submitted_assignments($courseid) {
+    global $DB;
 
-      $sql = "SELECT s.id,
-                     s.assignment,
-                     s.userid,
-                     s.timecreated,
-                     s.timemodified,
-                     s.numfiles,
-                     s.data1,
-                     s.data2,
-                     s.grade,
-                     s.submissioncomment,
-                     s.format,
-                     s.teacher,
-                     s.timemarked,
-                     s.mailed
-                FROM {assignment} a
-                JOIN {assignment_submissions} s ON s.assignment = a.id
-               WHERE a.course = :courseid";
-      $params = [
-          'courseid' => $courseid
-      ];
+    $sql = "SELECT a.name, cm.id AS cmid, COUNT(cm.id)
+              FROM {assign_submission} asb
+              JOIN {assign} a      ON a.id = asb.assignment
+              JOIN {course_modules} cm ON cm.instance = a.id
+              JOIN {modules} md        ON md.id = cm.module
+              JOIN {user} u            ON u.id = asb.userid
+              LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
+              WHERE
+              asb.latest = 1 AND
+              a.course = :courseid AND
+              md.name = 'assign' AND
+              asb.status = 'submitted' AND
+              cm.deletioninprogress = 0
+              GROUP BY a.name, cm.id";
+    $params = [
+        'courseid' => $courseid
+    ];
 
-      return $DB->get_records_sql($sql, $params);
-    }
+    return $DB->get_records_sql($sql, $params);
+  }
 
   function get_content(){
-    global $CFG, $DB, $PAGE;
+    global $CFG, $DB, $PAGE, $OUTPUT;
 
     $course = $this->page->course;
 
@@ -79,12 +71,16 @@ class block_not_graded_yet extends block_list {
     }
 
     // retrive the assignment records for a given course.
-    $assignments = $this->get_course_assignment_submissions($course->id);
+    $assignments = $this->get_number_submitted_assignments($course->id);
+    $c = sizeof(assignments);
+    //echo "<script>alert($c);</script>";
 
+    $modname = 'assign';
     foreach ($assignments as $assignment) {
-      $this->content->items[] = 'Assignment'.$assignment;
+      $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
+      $this->content->items[] = '<a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'('.$assignment->count.')'.'</a>';
+      //$this->content->items[] = $icon.$assignment->name.' ('.$assignment->count.')';
     }
-    $this->content->items[] = 'Course ID is '.$course->id;
 
 
     return $this->content;
