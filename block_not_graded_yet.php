@@ -29,15 +29,17 @@ class block_not_graded_yet extends block_list {
       ];
   }
 
-  function get_number_submitted_assignments($courseid) {
+  /*function get_submitted_assignments($courseid) {
     global $DB;
 
-    $sql = "SELECT a.name, cm.id AS cmid, COUNT(cm.id)
+    $sql = "SELECT cm.id AS cmid, a.name,  a.teamsubmission, grm.groupid as grid, u.username
               FROM {assign_submission} asb
               JOIN {assign} a      ON a.id = asb.assignment
               JOIN {course_modules} cm ON cm.instance = a.id
               JOIN {modules} md        ON md.id = cm.module
               JOIN {user} u            ON u.id = asb.userid
+              JOIN {groups_members} grm			ON grm.userid = u.id
+              JOIN {groups} gr					ON gr.id = grm.groupid
               LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
               WHERE
               asb.latest = 1 AND
@@ -45,12 +47,57 @@ class block_not_graded_yet extends block_list {
               md.name = 'assign' AND
               asb.status = 'submitted' AND
               cm.deletioninprogress = 0
-              GROUP BY a.name, cm.id";
+              ORDER BY a.name";
     $params = [
         'courseid' => $courseid
     ];
 
-    return $DB->get_records_sql($sql, $params);
+    return $DB->get_recordset_sql($sql, $params);
+  }*/
+
+  function get_number_submitted_assignments($courseid) {
+    global $DB;
+
+    $sql = "SELECT name, cmid, COUNT(*)
+              FROM (SELECT DISTINCT a.name AS name, cm.id AS cmid, grm.groupid
+                      FROM {assign_submission} asb
+                      JOIN {assign} a      ON a.id = asb.assignment
+                      JOIN {course_modules} cm ON cm.instance = a.id
+                      JOIN {modules} md        ON md.id = cm.module
+                      JOIN {user} u            ON u.id = asb.userid
+                      JOIN {groups_members} grm                        ON grm.userid = u.id
+                      JOIN {groups} gr                                        ON gr.id = grm.groupid
+                      LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
+                      WHERE
+                      asb.latest = 1 AND
+                      a.course = 2 AND
+                      md.name = 'assign' AND
+                      asb.status = 'submitted' AND
+                      cm.deletioninprogress = 0 AND
+                      a.teamsubmission = 1
+                      UNION
+                      SELECT a.name AS name, cm.id AS cmid, grm.groupid
+                      FROM {assign_submission} asb
+                      JOIN {assign} a      ON a.id = asb.assignment
+                      JOIN {course_modules} cm ON cm.instance = a.id
+                      JOIN {modules} md        ON md.id = cm.module
+                      JOIN {user} u            ON u.id = asb.userid
+                      JOIN {groups_members} grm  ON grm.userid = u.id
+                      JOIN {groups} gr        ON gr.id = grm.groupid
+                      LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
+                      WHERE
+                      asb.latest = 1 AND
+                      a.course = 2 AND
+                      md.name = 'assign' AND
+                      asb.status = 'submitted' AND
+                      cm.deletioninprogress = 0 AND
+                      a.teamsubmission = 0) AS dist
+              GROUP BY name, cmid";
+    $params = [
+        'courseid' => $courseid
+    ];
+
+    return $DB->get_recordset_sql($sql, $params);
   }
 
   function get_content(){
@@ -72,14 +119,11 @@ class block_not_graded_yet extends block_list {
 
     // retrive the assignment records for a given course.
     $assignments = $this->get_number_submitted_assignments($course->id);
-    $c = sizeof(assignments);
-    //echo "<script>alert($c);</script>";
 
     $modname = 'assign';
     foreach ($assignments as $assignment) {
       $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
       $this->content->items[] = '<a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'('.$assignment->count.')'.'</a>';
-      //$this->content->items[] = $icon.$assignment->name.' ('.$assignment->count.')';
     }
 
 
