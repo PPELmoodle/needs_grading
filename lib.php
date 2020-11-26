@@ -2,7 +2,7 @@
 function get_submissions_need_grading($courseid) {
   global $DB;
 
-  $sql = "SELECT name, cmid, COUNT(*)
+  $sql = "SELECT name, cmid, COUNT(*) as count
             FROM (SELECT DISTINCT a.name AS name, cm.id AS cmid, grm.groupid
                     FROM {assign_submission} asb
                     JOIN {assign} a      ON a.id = asb.assignment
