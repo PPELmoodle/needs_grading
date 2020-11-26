@@ -29,86 +29,12 @@ class block_not_graded_yet extends block_list {
       ];
   }
 
-  /*function get_submitted_assignments($courseid) {
-    global $DB;
-
-    $sql = "SELECT cm.id AS cmid, a.name,  a.teamsubmission, grm.groupid as grid, u.username
-              FROM {assign_submission} asb
-              JOIN {assign} a      ON a.id = asb.assignment
-              JOIN {course_modules} cm ON cm.instance = a.id
-              JOIN {modules} md        ON md.id = cm.module
-              JOIN {user} u            ON u.id = asb.userid
-              JOIN {groups_members} grm			ON grm.userid = u.id
-              JOIN {groups} gr					ON gr.id = grm.groupid
-              LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
-              WHERE
-              asb.latest = 1 AND
-              a.course = :courseid AND
-              md.name = 'assign' AND
-              asb.status = 'submitted' AND
-              cm.deletioninprogress = 0
-              ORDER BY a.name";
-    $params = [
-        'courseid' => $courseid
-    ];
-
-    return $DB->get_recordset_sql($sql, $params);
-  }*/
-
-  function get_number_submitted_assignments($courseid) {
-    global $DB;
-
-    $sql = "SELECT name, cmid, COUNT(*)
-              FROM (SELECT DISTINCT a.name AS name, cm.id AS cmid, u.id
-                      FROM {assign_submission} asb
-                      JOIN {assign} a      ON a.id = asb.assignment
-                      JOIN {course_modules} cm ON cm.instance = a.id
-                      JOIN {modules} md        ON md.id = cm.module
-                      JOIN {user} u            ON u.id = asb.userid
-                      JOIN {groups_members} grm                        ON grm.userid = u.id
-                      JOIN {groups} gr                                        ON gr.id = grm.groupid
-                      LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
-                      LEFT JOIN {assign_grades} asg ON asg.userid = asb.userid AND asg.assignment = asb.assignment
-                      WHERE
-                      asb.latest = 1 AND
-                      a.course = :courseid1 AND
-                      md.name = 'assign' AND
-                      asb.status = 'submitted' AND
-                      cm.deletioninprogress = 0 AND
-                      a.teamsubmission = 1 AND
-                      (asg.userid is NULL OR asg.assignment is NULL OR asg.grade is NULL)
-                      UNION
-                      SELECT a.name AS name, cm.id AS cmid, u.id
-                      FROM {assign_submission} asb
-                      JOIN {assign} a      ON a.id = asb.assignment
-                      JOIN {course_modules} cm ON cm.instance = a.id
-                      JOIN {modules} md        ON md.id = cm.module
-                      JOIN {user} u            ON u.id = asb.userid
-                      JOIN {groups_members} grm  ON grm.userid = u.id
-                      JOIN {groups} gr        ON gr.id = grm.groupid
-                      LEFT JOIN {assign_user_mapping} um ON um.userid = u.id AND um.assignment = a.id
-                      LEFT JOIN {assign_grades} asg ON asg.userid = asb.userid AND asg.assignment = asb.assignment
-                      WHERE
-                      asb.latest = 1 AND
-                      a.course = :courseid2 AND
-                      md.name = 'assign' AND
-                      asb.status = 'submitted' AND
-                      cm.deletioninprogress = 0 AND
-                      a.teamsubmission = 0 AND
-                      (asg.userid is NULL OR asg.assignment is NULL OR asg.grade is NULL)) AS dist
-                      GROUP BY name, cmid";
-    $params = [
-        'courseid1' => $courseid,
-        'courseid2' => $courseid
-    ];
-
-    return $DB->get_recordset_sql($sql, $params);
-  }
-
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT;
+    require_once($CFG->dirroot.'/blocks/not_graded_yet/lib.php');
 
     $course = $this->page->course;
+    $courseid = $course->id;
 
     if($this->content !== NULL) {
       return $this->content;
@@ -122,8 +48,8 @@ class block_not_graded_yet extends block_list {
         return $this->content;
     }
 
-    // retrive the assignment records for a given course.
-    $assignments = $this->get_number_submitted_assignments($course->id);
+    // get assignments with each number of submissions which need grading for a given course.
+    $assignments = get_submissions_need_grading($courseid);
 
 
     $modname = 'assign';
