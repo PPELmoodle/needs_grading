@@ -4,6 +4,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot.'/mod/assign/lib.php');
+require_once($CFG->dirroot.'/lib/enrollib.php');
 
 class block_not_graded_yet extends block_list {
   function init(){
@@ -30,11 +31,8 @@ class block_not_graded_yet extends block_list {
   }
 
   function get_content(){
-    global $CFG, $DB, $PAGE, $OUTPUT;
+    global $CFG, $DB, $PAGE, $OUTPUT, $USER;
     require_once($CFG->dirroot.'/blocks/not_graded_yet/lib.php');
-
-    $course = $this->page->course;
-    $courseid = $course->id;
 
     if($this->content !== NULL) {
       return $this->content;
@@ -48,16 +46,39 @@ class block_not_graded_yet extends block_list {
         return $this->content;
     }
 
-    // get assignments with each number of submissions which need grading for a given course.
-    $assignments = get_submissions_need_grading($courseid);
 
-
+    $CFG->langstringcache = false;
+    $courses = enrol_get_users_courses($USER->id);
     $modname = 'assign';
-    foreach ($assignments as $assignment) {
-      $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
-      $this->content->items[] = '<a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'('.$assignment->count.')'.'</a>';
+    $needsgrading = false;
+
+
+    foreach ($courses as $course){
+      $assignments = get_submissions_need_grading($course->id);
+
+      $block_text = '';
+      $sum = 0;
+      $block_prefix = '<details><summary><a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
+      if (sizeof($assignments) > 0) {
+        $needsgrading = true;
+
+        foreach ($assignments as $assignment) {
+          $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
+          $block_text .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'('.$assignment->count.')'.'</a></li>';
+          $sum += $assignment->count;
+        }
+      }
+      else {
+        //$this->content->items[] = get_string('noneedsgrading', 'block_not_graded_yet');
+      }
+      $block_prefix .= ' ('.$sum.') </summary><ol>';
+      $block_suffix ='</ol></details>';
+      $this->content->items[] = $block_prefix.$block_text.$block_suffix;
     }
 
+    if (!$needsgrading) {
+      $this->content->items[] = get_string('noneedsgrading', 'block_not_graded_yet');
+    }
 
     return $this->content;
   }
