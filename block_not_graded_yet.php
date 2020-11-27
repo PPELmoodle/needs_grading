@@ -23,12 +23,12 @@ class block_not_graded_yet extends block_list {
    * To show only in a course not on dashboard (from course moodlenavigation block)
    * @return array
    */
-  function applicable_formats() {
+  /*function applicable_formats() {
       return [
               'site-index' => true,
               'course-view-*' => true
       ];
-  }
+  }*/
 
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
@@ -48,7 +48,7 @@ class block_not_graded_yet extends block_list {
 
 
     $CFG->langstringcache = false;
-    $courses = enrol_get_users_courses($USER->id);
+    $courses = enrol_get_users_courses($USER->id, true, NULL,  'visible ASC,sortorder DESC');
     $modname = 'assign';
     $needsgrading = false;
 
@@ -64,12 +64,12 @@ class block_not_graded_yet extends block_list {
 
         foreach ($assignments as $assignment) {
           $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
-          $block_text .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'('.$assignment->count.')'.'</a></li>';
+          $block_text .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'</a> ('.$assignment->count.')'.'</li>';
           $sum += $assignment->count;
         }
       }
       else {
-        //$this->content->items[] = get_string('noneedsgrading', 'block_not_graded_yet');
+        $block_text .= '<li>Done.</li>';
       }
       $block_prefix .= ' ('.$sum.') </summary><ol>';
       $block_suffix ='</ol></details>';
