@@ -2,7 +2,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-    'block/not_graded_yet:myaddinstance' => array(
+    'block/needs_grading:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
@@ -12,7 +12,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),
 
-    'block/not_graded_yet:addinstance' => array(
+    'block/needs_grading:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
 
         'captype' => 'write',
