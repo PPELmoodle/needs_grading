@@ -6,9 +6,9 @@ require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot.'/mod/assign/lib.php');
 require_once($CFG->dirroot.'/lib/enrollib.php');
 
-class block_not_graded_yet extends block_list {
+class block_needs_grading extends block_list {
   function init(){
-    $this->title = get_string('pluginname', 'block_not_graded_yet');
+    $this->title = get_string('pluginname', 'block_needs_grading');
   }
 
   /**
@@ -32,7 +32,7 @@ class block_not_graded_yet extends block_list {
 
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
-    require_once($CFG->dirroot.'/blocks/not_graded_yet/lib.php');
+    require_once($CFG->dirroot.'/blocks/needs_grading/lib.php');
 
     if($this->content !== NULL) {
       return $this->content;
@@ -77,7 +77,7 @@ class block_not_graded_yet extends block_list {
     }
 
     if (!$needsgrading) {
-      $this->content->items[] = get_string('noneedsgrading', 'block_not_graded_yet');
+      $this->content->items[] = get_string('noneedsgrading', 'block_needs_grading');
     }
 
     return $this->content;
