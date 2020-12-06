@@ -59,7 +59,7 @@ class block_needs_grading extends block_list {
       $block_text = '';
       $sum = 0;
       $block_prefix = '<details><summary><a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
-      if (sizeof($assignments) > 0) {
+      if ($assignments->key()!=null) {
         $needsgrading = true;
 
         foreach ($assignments as $assignment) {
@@ -71,7 +71,7 @@ class block_needs_grading extends block_list {
       else {
         $block_text .= '<li>Done.</li>';
       }
-      $block_prefix .= ' ('.$sum.') </summary><ol>';
+      $block_prefix .= ' <span class="sum">'.' ('.$sum.')'.' </span></summary><ol>';
       $block_suffix ='</ol></details>';
       $this->content->items[] = $block_prefix.$block_text.$block_suffix;
     }
