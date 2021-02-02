@@ -24,5 +24,20 @@ $capabilities = array(
 
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
+    
+    'block/needs_grading:view' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'guest' => CAP_PREVENT,
+            'user' => CAP_PREVENT,
+            'student' => CAP_PREVENT,
+                   
+        ),
+    ),
 );
  ?>
