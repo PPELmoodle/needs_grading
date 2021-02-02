@@ -33,6 +33,13 @@ class block_needs_grading extends block_list {
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
     require_once($CFG->dirroot.'/blocks/needs_grading/lib.php');
+    $courseid   = required_param('id', PARAM_INT); 
+    $coursecontext = context_course::instance($courseid);
+    
+    //Check whether a user has a particular capability in a given context
+    if(!(has_capability('block/needs_grading:view', $coursecontext))){
+           return;     
+      }
 
     if($this->content !== NULL) {
       return $this->content;
@@ -55,7 +62,13 @@ class block_needs_grading extends block_list {
 
     foreach ($courses as $course){
       $assignments = get_submissions_need_grading($course->id);
-
+      $users_coursecontext= context_course::instance($course->id);
+      
+      //If user is unable to view the block -> continue
+      if(!(has_capability('block/needs_grading:view', $users_coursecontext))){
+           continue;
+      }
+      
       $block_text = '';
       $sum = 0;
       $block_prefix = '<details><summary><a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
