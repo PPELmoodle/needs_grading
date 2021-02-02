@@ -29,17 +29,10 @@ class block_needs_grading extends block_list {
               'course-view-*' => true
       ];
   }*/
-
+  
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
     require_once($CFG->dirroot.'/blocks/needs_grading/lib.php');
-    $courseid   = required_param('id', PARAM_INT); 
-    $coursecontext = context_course::instance($courseid);
-    
-    //Check whether a user has a particular capability in a given context
-    if(!(has_capability('block/needs_grading:view', $coursecontext))){
-           return;     
-      }
 
     if($this->content !== NULL) {
       return $this->content;
@@ -58,15 +51,18 @@ class block_needs_grading extends block_list {
     $courses = enrol_get_users_courses($USER->id, true, NULL,  'visible ASC,sortorder DESC');
     $modname = 'assign';
     $needsgrading = false;
-
+    $anypermission = false;
 
     foreach ($courses as $course){
       $assignments = get_submissions_need_grading($course->id);
       $users_coursecontext= context_course::instance($course->id);
       
-      //If user is unable to view the block -> continue
-      if(!(has_capability('block/needs_grading:view', $users_coursecontext))){
-           continue;
+      // If user is unable to view the block -> continue
+      if(!(has_capability('mod/assign:grade', $users_coursecontext))) {
+        continue;
+      }
+      else {
+        $anypermission = true;
       }
       
       $block_text = '';
@@ -89,7 +85,7 @@ class block_needs_grading extends block_list {
       $this->content->items[] = $block_prefix.$block_text.$block_suffix;
     }
 
-    if (!$needsgrading) {
+    if (!$needsgrading && $anypermission) {
       $this->content->items[] = get_string('noneedsgrading', 'block_needs_grading');
     }
 
