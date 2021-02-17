@@ -41,6 +41,8 @@ class block_needs_grading extends block_list {
     $this->content = new stdClass;
     $this->content->text = '';
     $this->content->footer = '';
+    $block_name = get_string('pluginname', 'block_needs_grading');
+    $this->content->items[] = '<div class="ng-title">'.$block_name.'</div>';
 
     if (empty($this->instance)) {
         return $this->content;
@@ -53,6 +55,7 @@ class block_needs_grading extends block_list {
     $needsgrading = false;
     $anypermission = false;
 
+    //$this->content->items[] = '<div class="ng-assigns">';
     foreach ($courses as $course){
       $assignments = get_submissions_need_grading($course->id);
       $users_coursecontext= context_course::instance($course->id);
@@ -67,7 +70,7 @@ class block_needs_grading extends block_list {
       
       $block_text = '';
       $sum = 0;
-      $block_prefix = '<details><summary><a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
+      $block_prefix = '<details class="ng-assigns"><summary><a class="coursename" href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
       if ($assignments->key()!=null) {
         $needsgrading = true;
 
@@ -88,6 +91,7 @@ class block_needs_grading extends block_list {
     if (!$needsgrading && $anypermission) {
       $this->content->items[] = get_string('noneedsgrading', 'block_needs_grading');
     }
+    //$this->content->items[] = '</div>';
 
     return $this->content;
   }

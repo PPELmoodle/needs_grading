@@ -1,4 +1,47 @@
-.block_needs_grading .sum{
-    background: antiquewhite !important;
+.block_needs_grading {
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.block_needs_grading .card-body {
+    background-color: #c6bcb6;
+    height: 100%;
+    width: 100%;
+    padding: 0 !important;
+}
+
+.block_needs_grading .card-title {
+    display:none !important;
+}
+
+.block_needs_grading .ng-title {
+    font-size: 18px;
+    background-color: #625750;
+    color: #ffffff;
+    padding: 5px;
+}
+
+.block_needs_grading .card-text {
+    color: #000000;
+    margin: 0 !important;
+}
+
+.block_needs_grading .coursename {
+    font-weight: bold;
+    color: #000000;
+}
+
+.block_needs_grading .ng-assigns {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.block_needs_grading a {
+    color: #000000;
+}
+
+.block_needs_grading .sum {
+    background: #e0e2e4 !important;
     padding:2px !important;
 }
