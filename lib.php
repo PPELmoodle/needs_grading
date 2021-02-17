@@ -8,10 +8,8 @@ function get_submissions_need_grading($courseid) {
                     JOIN {assign} a ON a.id = asb.assignment
                     JOIN {course_modules} cm ON cm.instance = a.id
                     JOIN {modules} md ON md.id = cm.module
-                    JOIN {user} u ON asb.userid = asb.userid
                     JOIN {groups_members} grm ON grm.userid = asb.userid
                     JOIN {groups} gr  ON gr.id = grm.groupid
-                    LEFT JOIN {assign_user_mapping} um ON um.userid = asb.userid AND um.assignment = a.id
                     LEFT JOIN {assign_grades} asg ON asg.userid = asb.userid AND asg.assignment = asb.assignment
                     WHERE
                     a.course = :courseid1 AND
