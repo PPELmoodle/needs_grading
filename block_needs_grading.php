@@ -91,7 +91,10 @@ class block_needs_grading extends block_list {
         $block_prefix_my_group .= ' <span class="sum">'.' ('.$my_group_assignments_sum .')'.' </span></summary><ol>';
         $block_suffix_my_group = '</ol></details>';
         $my_group_activ = true;
-}
+      }
+      else{
+            $my_group_activ = false;
+        }
       
       if ($assignments->key()!=null) {
         $needsgrading = true;
