@@ -33,6 +33,8 @@ class block_needs_grading extends block_list {
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
     require_once($CFG->dirroot.'/blocks/needs_grading/lib.php');
+    //check if user has a group
+    $my_group_activ=false;
 
     if($this->content !== NULL) {
       return $this->content;
@@ -69,8 +71,28 @@ class block_needs_grading extends block_list {
       }
       
       $block_text = '';
+      $block_text_my_group ='';
       $sum = 0;
+      $my_group_assignments_sum = 0;
       $block_prefix = '<details class="ng-assigns"><summary><a class="coursename" href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
+     
+      $cm = groups_get_user_groups($course->id, $USER->id);
+      $user_group = $cm[0]; 
+      
+      if (sizeof($user_group)==1) {
+        $my_group_assignments = get_submissions_need_grading_for_my_group($course->id,$user_group[0]);
+        $block_prefix_my_group = '<details><summary>'.get_string('my_group','block_needs_grading'); 
+        
+        foreach ($my_group_assignments as $mgs){
+          $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
+          $block_text_my_group .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$mgs->cmid.'&action=grading">'.$icon.$mgs->assignmentname.'</a> ('.$mgs->count.')'.'</li>';
+          $my_group_assignments_sum += $mgs->count;}
+        
+        $block_prefix_my_group .= ' <span class="sum">'.' ('.$my_group_assignments_sum .')'.' </span></summary><ol>';
+        $block_suffix_my_group ='</ol></details>';
+        $my_group=true;
+}
+      
       if ($assignments->key()!=null) {
         $needsgrading = true;
 
@@ -84,8 +106,15 @@ class block_needs_grading extends block_list {
         $block_text .= '<li>Done.</li>';
       }
       $block_prefix .= ' <span class="sum">'.' ('.$sum.')'.' </span></summary><ol>';
-      $block_suffix ='</ol></details>';
-      $this->content->items[] = $block_prefix.$block_text.$block_suffix;
+      $block_suffix ='</ol></details>'; 
+      
+      if($my_group==true){
+        $this->content->items[] = $block_prefix.$block_prefix_my_group.$block_text_my_group.$block_suffix_my_group.$block_text.$block_suffix;
+      }
+      else{
+            $this->content->items[] = $block_prefix.$block_text.$block_suffix;
+      }
+      
     }
 
     if (!$needsgrading && $anypermission) {
