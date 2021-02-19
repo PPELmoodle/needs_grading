@@ -34,7 +34,7 @@ class block_needs_grading extends block_list {
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
     require_once($CFG->dirroot.'/blocks/needs_grading/lib.php');
     //check if user has a group
-    $my_group_activ=false;
+    $my_group_activ = false;
 
     if($this->content !== NULL) {
       return $this->content;
@@ -80,8 +80,8 @@ class block_needs_grading extends block_list {
       $user_group = $cm[0]; 
       
       if (sizeof($user_group)==1) {
-        $my_group_assignments = get_submissions_need_grading_for_my_group($course->id,$user_group[0]);
-        $block_prefix_my_group = '<details><summary>'.get_string('my_group','block_needs_grading'); 
+        $my_group_assignments = get_submissions_need_grading_for_my_group($course->id, $user_group[0]);
+        $block_prefix_my_group = '<details><summary>'.get_string('my_group', 'block_needs_grading'); 
         
         foreach ($my_group_assignments as $mgs){
           $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
@@ -89,8 +89,8 @@ class block_needs_grading extends block_list {
           $my_group_assignments_sum += $mgs->count;}
         
         $block_prefix_my_group .= ' <span class="sum">'.' ('.$my_group_assignments_sum .')'.' </span></summary><ol>';
-        $block_suffix_my_group ='</ol></details>';
-        $my_group=true;
+        $block_suffix_my_group = '</ol></details>';
+        $my_group_activ = true;
 }
       
       if ($assignments->key()!=null) {
@@ -108,7 +108,7 @@ class block_needs_grading extends block_list {
       $block_prefix .= ' <span class="sum">'.' ('.$sum.')'.' </span></summary><ol>';
       $block_suffix ='</ol></details>'; 
       
-      if($my_group==true){
+      if($my_group_activ){
         $this->content->items[] = $block_prefix.$block_prefix_my_group.$block_text_my_group.$block_suffix_my_group.$block_text.$block_suffix;
       }
       else{
