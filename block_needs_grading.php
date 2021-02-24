@@ -57,7 +57,6 @@ class block_needs_grading extends block_list {
     $needsgrading = false;
     $anypermission = false;
 
-    //$this->content->items[] = '<div class="ng-assigns">';
     foreach ($courses as $course){
       $assignments = get_submissions_need_grading($course->id);
       $users_coursecontext= context_course::instance($course->id);
@@ -85,10 +84,10 @@ class block_needs_grading extends block_list {
         
         foreach ($my_group_assignments as $mgs){
           $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
-          $block_text_my_group .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$mgs->cmid.'&action=grading">'.$icon.$mgs->assignname.'</a> ('.$mgs->count.')'.'</li>';
+          $block_text_my_group .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$mgs->cmid.'&action=grading">'.$icon.$mgs->assignname.' </a>('.$mgs->count.')'.'</li>';
           $my_group_assignments_sum += $mgs->count;}
         
-        $block_prefix_my_group .= ' <span class="sum">'.' ('.$my_group_assignments_sum .')'.' </span></summary><ol>';
+        $block_prefix_my_group .= ' <span class="sum">'.'('.$my_group_assignments_sum .')'.' </span></summary><ol>';
         $block_suffix_my_group = '</ol></details>';
         $my_group_activ = true;
       }
@@ -108,7 +107,7 @@ class block_needs_grading extends block_list {
       else {
         $block_text .= '<li>Done.</li>';
       }
-      $block_prefix .= '<span class="sum">'.' ('.$sum.')'.' </span></summary><ol>';
+      $block_prefix .= ' <span class="sum">'.'('.$sum.')'.' </span></summary><ol>';
       $block_suffix ='</ol></details>'; 
       
       if($my_group_activ){
@@ -122,7 +121,6 @@ class block_needs_grading extends block_list {
     if (!$needsgrading && $anypermission) {
       $this->content->items[] = get_string('noneedsgrading', 'block_needs_grading');
     }
-    //$this->content->items[] = '</div>';
 
     return $this->content;
   }

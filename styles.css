@@ -3,7 +3,7 @@
 }
 
 .block_needs_grading .card-body {
-    background-color: #c6bcb6;
+    background-color: #ffffff;
     height: 100%;
     width: 100%;
     padding: 0 !important;
@@ -15,7 +15,7 @@
 
 .block_needs_grading .ng-title {
     font-size: 18px;
-    background-color: #625750;
+    background-color: #4276c2;
     color: #ffffff;
     padding: 5px;
 }
