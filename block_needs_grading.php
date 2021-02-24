@@ -79,13 +79,13 @@ class block_needs_grading extends block_list {
       $cm = groups_get_user_groups($course->id, $USER->id);
       $user_group = $cm[0]; 
       
-      if (sizeof($user_group)==1) {
+      if (sizeof($user_group) == 1) {
         $my_group_assignments = get_submissions_need_grading_for_my_group($course->id, $user_group[0]);
         $block_prefix_my_group = '<details><summary>'.get_string('my_group', 'block_needs_grading'); 
         
         foreach ($my_group_assignments as $mgs){
           $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
-          $block_text_my_group .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$mgs->cmid.'&action=grading">'.$icon.$mgs->assignmentname.'</a> ('.$mgs->count.')'.'</li>';
+          $block_text_my_group .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$mgs->cmid.'&action=grading">'.$icon.$mgs->assignname.'</a> ('.$mgs->count.')'.'</li>';
           $my_group_assignments_sum += $mgs->count;}
         
         $block_prefix_my_group .= ' <span class="sum">'.' ('.$my_group_assignments_sum .')'.' </span></summary><ol>';
@@ -93,31 +93,30 @@ class block_needs_grading extends block_list {
         $my_group_activ = true;
       }
       else{
-            $my_group_activ = false;
-        }
+        $my_group_activ = false;
+      }
       
       if ($assignments->key()!=null) {
         $needsgrading = true;
 
         foreach ($assignments as $assignment) {
           $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
-          $block_text .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->name.'</a> ('.$assignment->count.')'.'</li>';
+          $block_text .= '<li><a href="'.$CFG->wwwroot.'/mod/assign/view.php?id='.$assignment->cmid.'&action=grading">'.$icon.$assignment->assignname.'</a> ('.$assignment->count.')'.'</li>';
           $sum += $assignment->count;
         }
       }
       else {
         $block_text .= '<li>Done.</li>';
       }
-      $block_prefix .= ' <span class="sum">'.' ('.$sum.')'.' </span></summary><ol>';
+      $block_prefix .= '<span class="sum">'.' ('.$sum.')'.' </span></summary><ol>';
       $block_suffix ='</ol></details>'; 
       
       if($my_group_activ){
         $this->content->items[] = $block_prefix.$block_prefix_my_group.$block_text_my_group.$block_suffix_my_group.$block_text.$block_suffix;
       }
       else{
-            $this->content->items[] = $block_prefix.$block_text.$block_suffix;
+        $this->content->items[] = $block_prefix.$block_text.$block_suffix;
       }
-      
     }
 
     if (!$needsgrading && $anypermission) {
