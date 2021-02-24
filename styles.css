@@ -1,7 +1,3 @@
-.block_needs_grading {
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
-
 .block_needs_grading .card-body {
     background-color: #ffffff;
     height: 100%;

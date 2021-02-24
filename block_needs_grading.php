@@ -17,18 +17,6 @@ class block_needs_grading extends block_list {
   function has_config() {
         return true;
   }
-
-  /**
-   * Which page types this block may appear on.
-   * To show only in a course not on dashboard (from course moodlenavigation block)
-   * @return array
-   */
-  /*function applicable_formats() {
-      return [
-              'site-index' => true,
-              'course-view-*' => true
-      ];
-  }*/
   
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
