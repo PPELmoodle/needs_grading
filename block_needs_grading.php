@@ -61,14 +61,14 @@ class block_needs_grading extends block_list {
       $block_text_my_group ='';
       $sum = 0;
       $my_group_assignments_sum = 0;
-      $block_prefix = '<details class="ng-assigns"><summary><a class="coursename" href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
+      $block_prefix = '<details><summary class="ng-assigns"><a class="coursename" href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
      
       $cm = groups_get_user_groups($course->id, $USER->id);
       $user_group = $cm[0]; 
       
       if (sizeof($user_group) == 1) {
         $my_group_assignments = get_submissions_need_grading_for_my_group($course->id, $user_group[0]);
-        $block_prefix_my_group = '<details><summary>'.get_string('my_group', 'block_needs_grading'); 
+        $block_prefix_my_group = '<details><summary><span class="ng-assignsingroup">'.get_string('my_group', 'block_needs_grading').'</span>'; 
         
         foreach ($my_group_assignments as $mgs){
           $icon = $OUTPUT->image_icon('icon', get_string('pluginname', $modname), $modname);
