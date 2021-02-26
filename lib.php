@@ -22,7 +22,7 @@ function get_submissions_need_grading($courseid) {
                     (asg.grade is NULL OR asg.grade < 0)) AS team
                     ON asb.userid = 0 AND asb.groupid = team.gid AND asb.assignment = team.assignid
                     group by assignname, cmid
-          UNION
+          UNION ALL
                SELECT a.name AS assignname, cm.id AS cmid, COUNT(*) as count
                     FROM {assign_submission} asb
                     JOIN {assign} a ON a.id = asb.assignment
@@ -36,7 +36,8 @@ function get_submissions_need_grading($courseid) {
                     cm.deletioninprogress = 0 AND
                     a.teamsubmission = 0 AND
                     (asg.grade is NULL OR asg.grade < 0)
-                    GROUP BY assignname, cmid";
+                    GROUP BY assignname, cmid
+          ORDER BY cmid";
 
   $params = [
       'courseid1' => $courseid,
