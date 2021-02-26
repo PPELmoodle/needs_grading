@@ -46,7 +46,6 @@
     padding:1px !important;
 }
 
-
 .block_needs_grading details:hover summary::-webkit-details-marker, -moz-box-shadow:hover {
     color:skyblue;
 }

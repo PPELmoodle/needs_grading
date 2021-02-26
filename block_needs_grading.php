@@ -40,16 +40,18 @@ class block_needs_grading extends block_list {
 
 
     $CFG->langstringcache = false;
-    $courses = enrol_get_users_courses($USER->id, true, NULL,  'visible ASC,sortorder DESC');
+    /* get enrolled courses of logged in user */
+    $courses = enrol_get_users_courses($USER->id, true, NULL,  'visible ASC, sortorder DESC');
     $modname = 'assign';
     $needsgrading = false;
     $anypermission = false;
 
+    /* make list of assignments which need grading */
     foreach ($courses as $course){
       $assignments = get_submissions_need_grading($course->id);
       $users_coursecontext= context_course::instance($course->id);
       
-      // If user is unable to view the block -> continue
+      /* check permission: if user is not allowed to grade assignments, not show the list */
       if(!(has_capability('mod/assign:grade', $users_coursecontext))) {
         continue;
       }
@@ -61,11 +63,12 @@ class block_needs_grading extends block_list {
       $block_text_my_group ='';
       $sum = 0;
       $my_group_assignments_sum = 0;
-      $block_prefix = '<details><summary class="ng-assigns"><a class="coursename" href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->fullname.'</a>';
-     
+      $block_prefix = '<details><summary class="ng-assigns">'.'<span class="coursename">'.$course->fullname.'</span>';
+      
       $cm = groups_get_user_groups($course->id, $USER->id);
       $user_group = $cm[0]; 
       
+      /* in case of group submission and if tutor is also assigned to one group to grade */
       if (sizeof($user_group) == 1) {
         $my_group_assignments = get_submissions_need_grading_for_my_group($course->id, $user_group[0]);
         $block_prefix_my_group = '<details><summary><span class="ng-assignsingroup">'.get_string('my_group', 'block_needs_grading').'</span>'; 
@@ -83,7 +86,7 @@ class block_needs_grading extends block_list {
         $my_group_activ = false;
       }
       
-      if ($assignments->key()!=null) {
+      if ($assignments->key() != null) {
         $needsgrading = true;
 
         foreach ($assignments as $assignment) {
