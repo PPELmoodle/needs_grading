@@ -72,7 +72,7 @@ function get_submissions_need_grading_for_my_group($courseid, $groupid){
                     (asg.grade is NULL OR asg.grade < 0)) AS team
                     ON asb.userid = 0 AND asb.groupid = team.gid AND asb.assignment = team.assignid
                     group by assignname, cmid
-          UNION
+          UNION ALL
                SELECT a.name AS assignname, cm.id AS cmid, COUNT(*) as count
                     FROM {assign_submission} asb
                     JOIN {assign} a ON a.id = asb.assignment
