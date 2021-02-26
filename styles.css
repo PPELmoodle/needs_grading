@@ -14,6 +14,7 @@
     background-color: #4276c2;
     color: #ffffff;
     padding: 5px;
+    padding-left: 15px;
 }
 
 .block_needs_grading .card-text {
@@ -23,7 +24,6 @@
 
 .block_needs_grading .coursename {
     font-weight: bold;
-    color:#4276c2;
 }
 
 .block_needs_grading .coursename:hover {
@@ -42,24 +42,20 @@
 }
 
 .block_needs_grading .sum {
-    color: white;
-    background-color: cornflowerblue;
+    background-color: #e0e2e4;
     padding:1px !important;
 }
 
-.block_needs_grading summary{
-    color:#4276c2;
-}
 
-.block_needs_grading details:hover summary::-webkit-details-marker,-moz-box-shadow:hover {
-     color:skyblue;
- }
+.block_needs_grading details:hover summary::-webkit-details-marker, -moz-box-shadow:hover {
+    color:skyblue;
+}
 
 .block_needs_grading .ng-assignsingroup {
     font-weight: bold;
-      color:#4276c2;
+    color:#4276c2;
 }
 
 .block_needs_grading .ng-assignsingroup:hover {
-     color:skyblue;
- }
+    color:skyblue;
+}
