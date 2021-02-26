@@ -21,7 +21,7 @@ class block_needs_grading extends block_list {
   function get_content(){
     global $CFG, $DB, $PAGE, $OUTPUT, $USER;
     require_once($CFG->dirroot.'/blocks/needs_grading/lib.php');
-    //check if user has a group
+    /* check if user has a group */
     $my_group_activ = false;
 
     if($this->content !== NULL) {
