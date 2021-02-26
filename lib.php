@@ -87,7 +87,8 @@ function get_submissions_need_grading_for_my_group($courseid, $groupid){
                     cm.deletioninprogress = 0 AND
                     a.teamsubmission = 0 AND
                     (asg.grade is NULL OR asg.grade < 0)
-                    GROUP BY assignname, cmid";
+                    GROUP BY assignname, cmid
+          ORDER BY cmid";
     
     $params = [
         'courseid1' => $courseid,
