@@ -96,7 +96,7 @@ class block_needs_grading extends block_list {
         }
       }
       else {
-        $block_text .= '<li>Done.</li>';
+        continue;
       }
       $block_prefix .= ' <span class="sum">'.'('.$sum.')'.' </span></summary><ol>';
       $block_suffix ='</ol></details>'; 
