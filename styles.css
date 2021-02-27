@@ -1,9 +1,9 @@
 .block_needs_grading .card-body {
     background-color: #ffffff;
-    height: 50%;
+    height: 200px;
     width: 100%;
     padding: 0 !important;
-    overflow: scroll; 
+    overflow-y: scroll; 
 }
 
 .block_needs_grading .card-title {
