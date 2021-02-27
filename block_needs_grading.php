@@ -95,6 +95,7 @@ class block_needs_grading extends block_list {
           $sum += $assignment->count;
         }
       }
+      /* if there is no assignments from a course to be graded, do not show the course in block */
       else {
         continue;
       }
